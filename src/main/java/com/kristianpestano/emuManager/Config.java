@@ -31,7 +31,7 @@ public class Config {
 
     protected static void loadConfig() {
         String tempString;
-        String[] temp = new String[0];
+        String[] temp;
 
         try {
 
@@ -91,7 +91,6 @@ public class Config {
 
     public static void configurator() {
         Scanner scanner = new Scanner(System.in);
-        String userInput;
 
         System.out.print("Enter the location of the emulator executable >>> ");
         configMap.put("binPath", scanner.nextLine());

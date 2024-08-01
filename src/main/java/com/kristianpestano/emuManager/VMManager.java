@@ -80,7 +80,7 @@ public class VMManager {
                     return;
                 } else {
                     System.out.println("Err: Enter an integer");
-                    continue;
+
                 }
             } catch (IndexOutOfBoundsException e) {
                 System.out.println("Err: Does not exist in list");
@@ -499,7 +499,7 @@ public class VMManager {
         ObjectOutputStream vmObjOutput;
         File vmFile;
 
-        vmFile = new File(VM_LIST_FILES_ROOT + File.separator + String.valueOf(index) + "." + vm.getDirectoryName() + EmuManager.SERIALIZED_MACHINES_EXTENSION);
+        vmFile = new File(VM_LIST_FILES_ROOT + File.separator + index + "." + vm.getDirectoryName() + EmuManager.SERIALIZED_MACHINES_EXTENSION);
         // Set filestream
         try {
             Files.createDirectories(VM_LIST_FILES_ROOT.toPath());
