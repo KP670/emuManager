@@ -62,11 +62,15 @@ public class EmuManager {
                     case 6:
                         vmManager.editVM();
                         break;
+                    case 8:
+                        VMManager.printVMs();
+                        break;
                     case 9:
                         vmManager.deleteVM();
                         break;
                     case 0:
                         configurator();
+                        resetPaths();
 
                 }
 
@@ -84,7 +88,14 @@ public class EmuManager {
         }
     }
 
+    public static void resetPaths() {
+        binPath = new File(getConfigMap().get("binPath"));
+        configuratorPath = new File(getConfigMap().get("configuratorPath"));
+        machinesPath = new File(getConfigMap().get("machinesPath"));
 
+        binPb = new ProcessBuilder(binPath.getAbsolutePath());
+        configuratorPb = new ProcessBuilder(configuratorPath.getAbsolutePath());
+    }
 
     public static void close() {
         vmManager.storeAllVMs();

@@ -30,8 +30,8 @@ public class Config {
     }
 
     protected static void loadConfig() {
-        String tempString;
-        String[] temp;
+        String keyVal;
+        String[] keyValArr;
 
         try {
 
@@ -43,18 +43,18 @@ public class Config {
                 Scanner configScanner = new Scanner(CONFIG_FILE.getCanonicalFile());
                 while (configScanner.hasNextLine()) {
 
-                    tempString = configScanner.nextLine();
-                    if (tempString.matches(String.valueOf(COMMMENTED_LINE_PATTERN))) {
+                    keyVal = configScanner.nextLine();
+                    if (keyVal.matches(String.valueOf(COMMMENTED_LINE_PATTERN))) {
                         continue;
                     }
-                    temp = tempString.split(" : ");
-                    configMap.put(temp[0].strip(), temp[1].strip());
+                    keyValArr = keyVal.split(" : ");
+                    configMap.put(keyValArr[0].strip(), keyValArr[1].strip());
 
                 }
             }
 
         } catch (IOException e ){
-            System.out.println();
+            System.out.println("Error: Unable to load config file");
         }
     }
 
@@ -100,6 +100,9 @@ public class Config {
 
         System.out.print("Enter location of the Emulated Machines >> ");
         configMap.put("machinesPath",scanner.nextLine());
+
+        storeConfig();
+        loadConfig();
     }
 
     public static Config getInstance() {
@@ -111,6 +114,10 @@ public class Config {
 
     private Config() {
         configMap = new HashMap<>();
-        loadConfig();
+        if (!CONFIG_FILE.exists()) {
+            configurator();
+        } else {
+            loadConfig();
+        }
     }
 }
