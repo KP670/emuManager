@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.KristianPestano</groupId>
-    <artifactId>basilisk-sheepshaver-manager</artifactId>
+    <artifactId>emuManager</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>basilisk-sheepshaver-manager</name>
+    <name>emuManager</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -60,9 +60,7 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>
-                                org.kristianpestano.basilisksheepshavermanager/org.kristianpestano.basilisksheepshavermanager.HelloApplication
-                            </mainClass>
+                            <mainClass>org.kristianpestano.emuManager/org.kristianpestano.emuManager</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>

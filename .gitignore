@@ -1,6 +1,6 @@
 target/
 !.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
+!**/src/emuManager/**/target/
 !**/src/test/**/target/
 
 ### IntelliJ IDEA ###
@@ -28,7 +28,7 @@ target/
 /nbdist/
 /.nb-gradle/
 build/
-!**/src/main/**/build/
+!**/src/emuManager/**/build/
 !**/src/test/**/build/
 **/test_resources/
 

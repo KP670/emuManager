@@ -17,7 +17,6 @@ public class VM implements Serializable {
 
     transient private VMStatus vmStatus = VMStatus.HALTED;
     transient private Process process;
-    transient private Process configProcess;
 
     transient protected boolean isSelected = false;
 
@@ -96,7 +95,7 @@ public class VM implements Serializable {
 
     public void configure(ProcessBuilder launchApp) throws IOException {
         launchApp.directory(new File(launchApp.directory().getAbsolutePath() + File.separator + this.directoryName));
-        configProcess = launchApp.start();
+        Process configProcess = launchApp.start();
         while(configProcess.isAlive()) {
             vmStatus = VMStatus.ON_WAIT;
         }

@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 import static com.kristianpestano.emuManager.Config.*;
 
-public class Main {
+public class EmuManager {
     public static final String SERIALIZED_MACHINES_EXTENSION = ".evm";
     public static final String SERIALIZED_MACHINES_EXTENSION_REGEX = ".*." + SERIALIZED_MACHINES_EXTENSION;
 
@@ -66,7 +66,7 @@ public class Main {
                         vmManager.deleteVM();
                         break;
                     case 0:
-                        Config.configurator();
+                        configurator();
 
                 }
 
@@ -92,7 +92,7 @@ public class Main {
     }
 
     public static void main(String[] args){
-        Config.getInstance();
+        getInstance();
 
         binPath = new File(getConfigMap().get("binPath"));
         configuratorPath = new File(getConfigMap().get("configuratorPath"));

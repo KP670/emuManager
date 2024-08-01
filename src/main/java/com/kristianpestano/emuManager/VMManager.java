@@ -8,8 +8,6 @@ import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Scanner;
 
-import static com.kristianpestano.emuManager.Main.*;
-
 public class VMManager {
     private static VMManager instance;
     protected static final File VM_LIST_FILES_ROOT = new File("data/");
@@ -40,9 +38,9 @@ public class VMManager {
         for (VM vm : vmList) {
 
             vmStatus = switch (vm.getVmStatus()) {
-                case VMStatus.RUNNING -> "Running";
-                case VMStatus.HALTED -> "Halted";
-                case VMStatus.ON_WAIT -> "Waiting";
+                case RUNNING -> "Running";
+                case HALTED -> "Halted";
+                case ON_WAIT -> "Waiting";
                 default -> "ERR";
             };
 
@@ -114,7 +112,7 @@ public class VMManager {
 
             try {
                 VM vm = new VM(name, directoryName,description);
-                vmPath = new File(machinesPath + File.separator + vm.getDirectoryName());
+                vmPath = new File(EmuManager.machinesPath + File.separator + vm.getDirectoryName());
 
                 Files.createDirectories(vmPath.toPath());
 
@@ -135,7 +133,7 @@ public class VMManager {
 
     public void startVM() throws NullPointerException {
         try {
-            selectedVM.start(binPb);
+            selectedVM.start(EmuManager.binPb);
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
@@ -220,8 +218,8 @@ public class VMManager {
 
         while (true) {
             try {
-                // Select VM to delete
-                System.out.println("Select a VM to edit >> ");
+                // Select emuManager.VM to delete
+                System.out.println("Select a emuManager.VM to edit >> ");
 
                 userInput = scanner.nextLine();
                 numVM = Integer.parseInt(userInput + 1);
@@ -297,7 +295,7 @@ public class VMManager {
                         selectedVM.setName(name);
                     }
                     if (!selectedVM.getDirectoryName().equals(directoryName)){
-                        selectedVM.setDirectoryName(binPb, directoryName);
+                        selectedVM.setDirectoryName(EmuManager.binPb, directoryName);
                     }
                     if (!selectedVM.getDescription().equals(description)){
                         selectedVM.setDescription(description);
@@ -362,7 +360,7 @@ public class VMManager {
 
     public void configureVM() throws NullPointerException {
         try {
-            selectedVM.configure(configuratorPb);
+            selectedVM.configure(EmuManager.configuratorPb);
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
@@ -388,8 +386,8 @@ public class VMManager {
         File originalLocation;
         File backupLocation;
 
-        originalLocation = new File(VM_LIST_FILES_ROOT + File.separator + vm.getDirectoryName() + SERIALIZED_MACHINES_EXTENSION);
-        backupLocation = new File(VM_LIST_FILES_BACKUP +File.separator + vm.getDirectoryName() + SERIALIZED_MACHINES_EXTENSION);
+        originalLocation = new File(VM_LIST_FILES_ROOT + File.separator + vm.getDirectoryName() + EmuManager.SERIALIZED_MACHINES_EXTENSION);
+        backupLocation = new File(VM_LIST_FILES_BACKUP +File.separator + vm.getDirectoryName() + EmuManager.SERIALIZED_MACHINES_EXTENSION);
 
         try {
             Files.createDirectory(Path.of(VM_LIST_FILES_BACKUP.getAbsolutePath()));
@@ -404,7 +402,7 @@ public class VMManager {
         File serializedVM;
 
         for (String fileName: Objects.requireNonNull(VM_LIST_FILES_ROOT.list())) {
-            if (fileName.matches(SERIALIZED_MACHINES_EXTENSION_REGEX)){
+            if (fileName.matches(EmuManager.SERIALIZED_MACHINES_EXTENSION_REGEX)){
                 serializedVM = new File(VM_LIST_FILES_ROOT + File.separator + fileName);
                 try {
                     loadVM(serializedVM);
@@ -436,7 +434,7 @@ public class VMManager {
     public void loadVM(File serializedVM) throws IOException, ClassNotFoundException {
         VM vm;
 
-        if (!serializedVM.toString().matches(SERIALIZED_MACHINES_EXTENSION_REGEX)) {
+        if (!serializedVM.toString().matches(EmuManager.SERIALIZED_MACHINES_EXTENSION_REGEX)) {
             throw new IOException("Invalid file extension");
         }
 
@@ -466,7 +464,7 @@ public class VMManager {
         ObjectOutputStream vmObjOutput;
         File vmFile;
 
-        vmFile = new File(VM_LIST_FILES_ROOT + File.separator + vm.getDirectoryName() + SERIALIZED_MACHINES_EXTENSION);
+        vmFile = new File(VM_LIST_FILES_ROOT + File.separator + vm.getDirectoryName() + EmuManager.SERIALIZED_MACHINES_EXTENSION);
         // Set filestream
         try {
             Files.createDirectories(VM_LIST_FILES_ROOT.toPath());
@@ -501,7 +499,7 @@ public class VMManager {
         ObjectOutputStream vmObjOutput;
         File vmFile;
 
-        vmFile = new File(VM_LIST_FILES_ROOT + File.separator + String.valueOf(index) + "." + vm.getDirectoryName() + SERIALIZED_MACHINES_EXTENSION);
+        vmFile = new File(VM_LIST_FILES_ROOT + File.separator + String.valueOf(index) + "." + vm.getDirectoryName() + EmuManager.SERIALIZED_MACHINES_EXTENSION);
         // Set filestream
         try {
             Files.createDirectories(VM_LIST_FILES_ROOT.toPath());
