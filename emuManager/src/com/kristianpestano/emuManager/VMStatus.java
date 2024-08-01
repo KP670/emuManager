@@ -1,4 +1,4 @@
-package com.kristianpesatno.emuManager;
+package com.kristianpestano.emuManager;
 
 public enum VMStatus {
     RUNNING,
