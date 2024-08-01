@@ -91,7 +91,7 @@ public class Main {
         storeConfig();
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args){
         Config.getInstance();
 
         binPath = new File(getConfigMap().get("binPath"));
