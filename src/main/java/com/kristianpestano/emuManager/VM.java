@@ -6,6 +6,8 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Scanner;
 
+import static com.kristianpestano.emuManager.EmuManager.*;
+
 public class VM implements Serializable {
 
     @Serial
@@ -15,10 +17,13 @@ public class VM implements Serializable {
     private String directoryName;
     private String description;
 
+
     transient private VMStatus vmStatus = VMStatus.HALTED;
     transient private Process process;
 
     transient protected boolean isSelected = false;
+    transient protected File dirContext;
+
 
     public boolean isSelected() {
         return this.isSelected;
@@ -40,17 +45,22 @@ public class VM implements Serializable {
         return this.vmStatus;
     }
 
+    public File getDirContext() {
+        return dirContext;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setDirectoryName(ProcessBuilder launchApp, String directoryName) throws SecurityException, NullPointerException{
-        File vmDirectory = new File(launchApp.directory().getAbsolutePath() + File.separator + this.directoryName);
-        File newVMDirectory = new File(launchApp.directory().getAbsolutePath() + File.separator + directoryName);
+    public void setDirectoryName(String directoryName) throws SecurityException, NullPointerException{
+        File newVMDirectory = new File(machinesPath + File.separator + directoryName);
 
 
-        if(vmDirectory.renameTo(newVMDirectory)) {
+        if(dirContext.renameTo(newVMDirectory)) {
             System.out.println("VM directory has been successfully renamed");
+            this.dirContext = new File( machinesPath + File.separator + this.directoryName);
+
         } else {
             System.out.println("There was an error renaming VM directory");
             return;
@@ -63,16 +73,22 @@ public class VM implements Serializable {
         this.description = description;
     }
 
-    public void setSelected(boolean selected) {
-        isSelected = selected;
+    public void toggleSelected() {
+        isSelected = !isSelected;
     }
 
-    public void resetVMStatus() {
+    public void resetVMInfo() {
+
         vmStatus = VMStatus.HALTED;
+        dirContext = new File( machinesPath + File.separator + this.directoryName);
+
     }
 
-    public void start(ProcessBuilder launchApp) throws IOException {
-        process = launchApp.start();
+    public void start() throws IOException {
+        ProcessBuilder binPb = new ProcessBuilder(binPath.getAbsolutePath());
+        binPb.directory(dirContext);
+
+        process = binPb.start();
         vmStatus = VMStatus.RUNNING;
     }
 
@@ -93,9 +109,11 @@ public class VM implements Serializable {
         }
     }
 
-    public void configure(ProcessBuilder launchApp) throws IOException {
-        launchApp.directory(new File(launchApp.directory().getAbsolutePath() + File.separator + this.directoryName));
-        Process configProcess = launchApp.start();
+    public void configure() throws IOException {
+        ProcessBuilder configuratorPb = new ProcessBuilder(configuratorPath.getAbsolutePath());
+
+        configuratorPb.directory(dirContext);
+        Process configProcess = configuratorPb.start();
         while(configProcess.isAlive()) {
             vmStatus = VMStatus.ON_WAIT;
         }
@@ -115,6 +133,8 @@ public class VM implements Serializable {
         this.name = name;
         this.directoryName = directoryName;
         this.description = description;
+        this.dirContext = new File( machinesPath + File.separator + this.directoryName);
+
     }
 
     @Override

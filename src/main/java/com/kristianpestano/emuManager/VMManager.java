@@ -10,11 +10,15 @@ import java.util.Scanner;
 
 public class VMManager {
     private static VMManager instance;
-    protected static final File VM_LIST_FILES_ROOT = new File("data/");
-    protected static final File VM_LIST_FILES_BACKUP = new File("backup/");
+    protected final File VM_LIST_FILES_ROOT = new File("data/");
+    protected final File VM_LIST_FILES_BACKUP = new File("backup/");
 
     private static LinkedList<VM> vmList;
-    private VM selectedVM;
+    private static VM selectedVM;
+
+    public static VM getSelectedVM() {
+        return selectedVM;
+    }
 
     public static void setVmList(LinkedList<VM> vmList) {
         VMManager.vmList = vmList;
@@ -66,6 +70,7 @@ public class VMManager {
         Scanner scanner = new Scanner(System.in);
         String userInput;
         int selectedVMNum;
+        VM newSelectedVM;
 
         while (true) { // Ask user for VM to select
             System.out.print("Select a VM, Enter Q to cancel >> ");
@@ -73,10 +78,28 @@ public class VMManager {
 
             try {
                 selectedVMNum = Integer.parseInt(userInput);
-                selectedVM = vmList.get(selectedVMNum - 1);
+
+                newSelectedVM = vmList.get(selectedVMNum - 1);
+
+
+
+                if (selectedVM == null) {
+                    selectedVM = newSelectedVM;
+                    selectedVM.toggleSelected();
+                    break;
+                } else if (selectedVM.equals(newSelectedVM)){
+                    selectedVM.toggleSelected();
+                    selectedVM = null;
+                    break;
+                }
+
+                selectedVM.toggleSelected();
+                selectedVM = newSelectedVM;
+                selectedVM.toggleSelected();
+
                 break;
             } catch (NumberFormatException e) {
-                if (userInput.equals("Q")) {
+                if (userInput.equalsIgnoreCase("Q")) {
                     return;
                 } else {
                     System.out.println("Err: Enter an integer");
@@ -86,8 +109,6 @@ public class VMManager {
                 System.out.println("Err: Does not exist in list");
             }
         }
-
-        selectedVM.setSelected(!selectedVM.isSelected);
 
         refresh();
     }
@@ -133,7 +154,7 @@ public class VMManager {
 
     public void startVM() throws NullPointerException {
         try {
-            selectedVM.start(EmuManager.binPb);
+            selectedVM.start();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
@@ -162,7 +183,7 @@ public class VMManager {
                 System.out.println("Are you sure? >> ");
                 userInput = scanner.nextLine().toUpperCase();
 
-                if (userInput.equals("YES") | userInput.equals("Y")) {
+                if (userInput.equalsIgnoreCase("YES") | userInput.equalsIgnoreCase("Y")) {
                         if (serializedVM.delete()) {
                             vmList.remove(numVM);
                             refresh();
@@ -171,7 +192,7 @@ public class VMManager {
                         }
                     break;
 
-                } else if (userInput.equals("NO") | userInput.equals("N")) {
+                } else if (userInput.equalsIgnoreCase("NO") | userInput.equalsIgnoreCase("N")) {
                     System.out.println("You have cancelled this operation");
 
                 } else {
@@ -184,17 +205,18 @@ public class VMManager {
                     System.out.println("Are you finished? >> ");
                     userInput = scanner.nextLine().toUpperCase();
 
-                    if (userInput.equals("YES") | userInput.equals("Y")) {
+                    if (userInput.equalsIgnoreCase("YES") | userInput.equalsIgnoreCase("Y")) {
                         System.out.println("Done. ");
+
+                        scanner.close();
                         return;
-
-                    } else if (userInput.equals("NO") | userInput.equals("N")) {
-                        break;
-
-                    } else {
-                        System.out.println("Try Again\n");
-
                     }
+
+                    if (userInput.equalsIgnoreCase("NO") | userInput.equalsIgnoreCase("N")) {
+                        break;
+                    }
+
+                    System.out.println("Invalid Input");
                 }
 
             } catch (NumberFormatException e) {
@@ -203,8 +225,10 @@ public class VMManager {
                 System.out.println("Err: Does not exist in list");
             }
         }
+        scanner.close();
     }
 
+    // Can be revised
     public void editVM() {
         Scanner scanner = new Scanner(System.in);
         String userInput;
@@ -216,63 +240,98 @@ public class VMManager {
         String directoryName;
         String description;
 
+        // Ensures that that user can restart for a different machine
         while (true) {
+            name = "";
+            directoryName = "";
+            description= "";
+
             try {
-                // Select emuManager.VM to delete
-                System.out.println("Select a emuManager.VM to edit >> ");
+                // Select VM to edit
+                System.out.println("Select a VM to edit, enter 0 to cancel editing >> ");
 
                 userInput = scanner.nextLine();
-                numVM = Integer.parseInt(userInput + 1);
-                selectedVM = vmList.get(numVM);
 
-                serializedVM = new File(VM_LIST_FILES_ROOT + selectedVM.getDirectoryName());
 
-                name = selectedVM.getName();
-                directoryName = selectedVM.getDirectoryName();
-                description = selectedVM.getDescription();
 
-                while (true) {
-                    System.out.println(selectedVM);
+                numVM = Integer.parseInt(userInput);
 
-                    System.out.println("""
-                            What would you like to edit?
-                            [1] Name
-                            [2] Directory Name
-                            [3] Description
-                            
-                            [0] Finish
-                            >>""");
+                if (numVM == 0) {
+                    System.out.println("You have cancelled this operation");
 
-                    try {
-                        switch (scanner.nextInt()) {
-                            case 1:
-                                System.out.printf("Current name: %s", name);
-                                System.out.print("Enter new name >> ");
-                                name = scanner.nextLine();
-                                break;
-                            case 2:
-                                System.out.printf("Current Directory Name: %s", directoryName);
-                                System.out.print("Enter new directory path >> ");
-                                directoryName = scanner.nextLine();
-                                break;
-                            case 3:
-                                System.out.printf("Current Description: %s", description);
-                                System.out.print("Enter new description");
-                                description = scanner.nextLine();
-                                break;
-                            case 0:
-                                break;
-                            default:
-                                System.out.println("Invalid Input");
-                                continue;
-                        }
-
-                        break;
-                    } catch (NumberFormatException e) {
-                        System.out.println("Input must be a number");
-                    }
+                    scanner.close();
+                    return;
                 }
 
+                selectedVM = vmList.get(numVM - 1);
+
+
+            } catch (IndexOutOfBoundsException e) {
+                System.out.println("Err: Does not exist in list");
+
+                continue;
+            }
+
+            try {
+                serializedVM = new File(VM_LIST_FILES_ROOT + selectedVM.getDirectoryName());
+            } catch (NullPointerException e) {
+                System.out.println("Selected machines seems to be its data file, generating");
+                try {
+                    storeVM(selectedVM);
+                } catch (IOException ex) {
+                    System.out.println("Unable to create file");
+
+                    continue;
+                }
+                serializedVM = new File(VM_LIST_FILES_ROOT + selectedVM.getDirectoryName());
+            }
+
+
+            // User picks which attribute to edit
+            while (true) {
+                try {
+                    System.out.println(selectedVM);
+
+                    System.out.print("""
+                        What would you like to edit?
+                        [1] Name
+                        [2] Directory Name
+                        [3] Description
+                        
+                        [0] Finish
+                        >>\s""");
+
+                    switch (Integer.parseInt(scanner.nextLine())) {
+                        case 1:
+                            System.out.printf("Current name: %s", selectedVM.getName());
+                            System.out.print("Enter new name >> ");
+                            name = scanner.nextLine();
+                            continue;
+                        case 2:
+                            System.out.printf("Current Directory Name: %s", selectedVM.getDirectoryName());
+                            System.out.print("Enter new directory path >> ");
+                            directoryName = scanner.nextLine();
+                            continue;
+                        case 3:
+                            System.out.printf("Current Description: %s", selectedVM.getDescription());
+                            System.out.print("Enter new description >>");
+                            description = scanner.nextLine();
+                            continue;
+                        case 0:
+                            break;
+                        default:
+                            System.out.println("Invalid Input");
+                            continue;
+                    }
+                    break;
+
+                } catch (NumberFormatException | InputMismatchException e) {
+                    System.out.println("Input must be a number");
+                }
+            }
+
+            // Confirms user's actions
+            try {
                 System.out.printf("""
                         Name: %s
                         DirectoryName: %s
@@ -280,24 +339,20 @@ public class VMManager {
                             %s
                        \s
                        \s""", name, directoryName, description);
-                System.out.println("Confirm Changes? >> ");
+                System.out.print("Confirm Changes? >> ");
 
                 userInput = scanner.nextLine().toUpperCase();
-
-
-
                 if (userInput.equals("YES") | userInput.equals("Y")) {
 
-                    // Create backup
                     createBackup(selectedVM);
 
-                    if (!selectedVM.getName().equals(name)) {
+                    if (!name.equals(selectedVM.getName()) & !name.isEmpty()) {
                         selectedVM.setName(name);
                     }
-                    if (!selectedVM.getDirectoryName().equals(directoryName)){
-                        selectedVM.setDirectoryName(EmuManager.binPb, directoryName);
+                    if (!directoryName.equals(selectedVM.getName()) & !name.isEmpty()){
+                        selectedVM.setDirectoryName(directoryName);
                     }
-                    if (!selectedVM.getDescription().equals(description)){
+                    if (!description.equals(selectedVM.getName()) & !description.isEmpty()){
                         selectedVM.setDescription(description);
                     }
 
@@ -307,19 +362,22 @@ public class VMManager {
                         try {
                             System.out.println("Successfully deleted old Serialized File");
 
+                            // Generates a new serial file
                             System.out.println("Generating new serialized file");
                             storeVM(selectedVM);
                             refresh();
                             return;
+
                         } catch (IOException e) {
                             System.out.println("An error has occured, restoring to a previous state");
                             loadAllVMs();
-                            return;
+                            break;
                         }
 
                     } else {
                         System.out.println("Something went wrong with deleting the old Serialized File");
                         System.out.println("Reverting Changes...");
+                        // restore
                     }
                 } else if (userInput.equals("NO") | userInput.equals("N")) {
                     System.out.println("Cancelled this operation");
@@ -332,35 +390,36 @@ public class VMManager {
 
 
                 while (true) { // User confirmation
-                    System.out.println("Are you finished? >> ");
-                    userInput = scanner.nextLine().toUpperCase();
+                    try {
+                        System.out.println("Are you finished? >> ");
+                        userInput = scanner.nextLine().toUpperCase();
 
-                    if (userInput.equals("YES") | userInput.equals("Y")) {
-                        System.out.println("Done. ");
-                        return;
+                        if (userInput.equals("YES") | userInput.equals("Y")) {
+                            System.out.println("Done. ");
 
-                    } else if (userInput.equals("NO") | userInput.equals("N")) {
-                        break;
+                            scanner.close();
+                            return;
 
-                    } else {
-                        System.out.println("Try Again\n");
+                        } else if (userInput.equals("NO") | userInput.equals("N")) {
+                            break;
 
+                        }
+                    } catch (InputMismatchException e) {
+                        System.out.println("Invalid Input");
                     }
                 }
 
             } catch (NumberFormatException e) {
                 System.out.println("Err: Enter an integer");
-            } catch (IndexOutOfBoundsException e) {
-                System.out.println("Err: Does not exist in list");
             }
         }
-
+    scanner.close();
     }
 
 
     public void configureVM() throws NullPointerException {
         try {
-            selectedVM.configure(EmuManager.configuratorPb);
+            selectedVM.configure();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
@@ -373,16 +432,16 @@ public class VMManager {
     }
 
     public void printSelectedVMDetails() {
-        if (this.selectedVM == null) {
+        if (selectedVM == null) {
             System.out.println("You have not selected a VM.");
         } else {
-            System.out.println(this.selectedVM);
+            System.out.println(selectedVM);
         }
     }
 
 
 
-    public static void createBackup(VM vm) {
+    public void createBackup(VM vm) {
         File originalLocation;
         File backupLocation;
 
@@ -439,14 +498,14 @@ public class VMManager {
         }
 
         FileInputStream vmFileInput = new FileInputStream(serializedVM.getAbsolutePath());
-        ObjectInputStream vmObjInput = new ObjectInputStream(vmFileInput);
+        try (ObjectInputStream vmObjInput = new ObjectInputStream(vmFileInput)) {
 
-        vm = (VM) vmObjInput.readObject();
-        vm.resetVMStatus();
-        vmList.add(vm);
+            vm = (VM) vmObjInput.readObject();
+            vm.resetVMInfo();
+            vmList.add(vm);
 
-        vmFileInput.close();
-        vmObjInput.close();
+            vmFileInput.close();
+        }
     }
 
     public void reloadVM(int index, File serializedVM) throws IOException, ClassNotFoundException {
@@ -488,7 +547,6 @@ public class VMManager {
             return;
         }
 
-
         // Close
         vmFileOutput.close();
         vmObjOutput.close();
@@ -523,11 +581,14 @@ public class VMManager {
             return;
         }
 
-
         // Close
         vmFileOutput.close();
         vmObjOutput.close();
     }
+
+    // Import VM
+
+    // Export VM
 
     public static VMManager getInstance() {
         if (instance == null) {
@@ -537,6 +598,8 @@ public class VMManager {
     }
 
     private VMManager() {
+        selectedVM = null;
+
         try {
             vmList = new LinkedList<>();
             loadAllVMs();
@@ -544,7 +607,4 @@ public class VMManager {
             System.out.println("Skipping as there are no detected VMs");
         }
     }
-
-
-
 }

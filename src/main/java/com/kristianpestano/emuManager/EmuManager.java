@@ -14,19 +14,23 @@ public class EmuManager {
     public static File configuratorPath;
     public static File machinesPath;
 
-    // Init ProcessBuilders
-    public static ProcessBuilder binPb;
-    public static ProcessBuilder configuratorPb;
-
     public static VMManager vmManager;
+    public static Config config;
 
     public static void menu() {
-        Scanner scanner = new Scanner(System.in);
+        Scanner scanner;
         String userInput;
 
         while (true) {
+            scanner = new Scanner(System.in);
             System.out.println("Machines Path: " + machinesPath.getAbsolutePath());
+
+            if (VMManager.getSelectedVM() != null) {
+                System.out.println("Current Machine Path: " + VMManager.getSelectedVM().getDirContext().getAbsolutePath());
+            }
+
             System.out.print("""
+                           \s
                             [1] Start Selected VM
                             [2] Configure Selected VM
                             [3] Print Selected VM Details
@@ -53,6 +57,7 @@ public class EmuManager {
                         break;
                     case 3:
                         vmManager.printSelectedVMDetails();
+                        break;
                     case 4:
                         vmManager.selectVM();
                         break;
@@ -69,15 +74,16 @@ public class EmuManager {
                         vmManager.deleteVM();
                         break;
                     case 0:
-                        configurator();
+                        config.configurator();
                         resetPaths();
 
                 }
 
             } catch (NumberFormatException e) {
-                if (userInput.equals("Q")) {
+                if (userInput.equalsIgnoreCase("Q")) {
                     System.out.println("Exiting...");
                     return;
+
                 } else {
                     System.out.println("Invalid Input");
 
@@ -92,28 +98,19 @@ public class EmuManager {
         binPath = new File(getConfigMap().get("binPath"));
         configuratorPath = new File(getConfigMap().get("configuratorPath"));
         machinesPath = new File(getConfigMap().get("machinesPath"));
-
-        binPb = new ProcessBuilder(binPath.getAbsolutePath());
-        configuratorPb = new ProcessBuilder(configuratorPath.getAbsolutePath());
     }
 
     public static void close() {
         vmManager.storeAllVMs();
-        storeConfig();
+        config.storeConfig();
     }
 
     public static void main(String[] args){
-        getInstance();
+        config = Config.getInstance();
 
         binPath = new File(getConfigMap().get("binPath"));
         configuratorPath = new File(getConfigMap().get("configuratorPath"));
         machinesPath = new File(getConfigMap().get("machinesPath"));
-
-        binPb = new ProcessBuilder(binPath.getAbsolutePath());
-        configuratorPb = new ProcessBuilder(configuratorPath.getAbsolutePath());
-
-        binPb.directory(machinesPath);
-        configuratorPb.directory(machinesPath);
 
         vmManager = VMManager.getInstance();
 

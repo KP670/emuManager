@@ -10,26 +10,26 @@ import java.util.regex.Pattern;
 public class Config {
     private static HashMap<String, String> configMap;
     private static Config instance;
-    protected static final File CONFIG_FILE = new File("etc/config.txt");
 
-    private static final String COMMENTED_LINE_REGEX = "^//(.*?)$";
-    private static final Pattern COMMMENTED_LINE_PATTERN = Pattern.compile(COMMENTED_LINE_REGEX, Pattern.MULTILINE);
+    protected final File CONFIG_FILE = new File("etc/config.txt");
+    private final String COMMENTED_LINE_REGEX = "^//(.*?)$";
+    private final Pattern COMMMENTED_LINE_PATTERN = Pattern.compile(COMMENTED_LINE_REGEX, Pattern.MULTILINE);
 
     // Defaults
-    public static final String DEFAULT_PARENT_DIRECTORY_WIN = System.getenv("ProgramFiles(x86)") + File.separator;
-    public static final String DEFAULT_MACHINES_DIRECTORY_WIN = System.getenv("SystemDrive") + System.getenv("HOMEPATH") + File.separator + "Machines" + File.separator;
+    public final String DEFAULT_PARENT_DIRECTORY_WIN = System.getenv("ProgramFiles(x86)") + File.separator;
+    public final String DEFAULT_MACHINES_DIRECTORY_WIN = System.getenv("SystemDrive") + System.getenv("HOMEPATH") + File.separator + "Machines" + File.separator;
 
     public static HashMap<String, String> getConfigMap() {
         return configMap;
     }
 
-    protected static void createDefaultConfig() {
+    protected void createDefaultConfig() {
         configMap.put("binPath", DEFAULT_PARENT_DIRECTORY_WIN + "BasiliskII.exe");
         configMap.put("configuratorPath", DEFAULT_PARENT_DIRECTORY_WIN + "BasiliskIIGUI.exe");
         configMap.put("machinesPath", DEFAULT_MACHINES_DIRECTORY_WIN);
     }
 
-    protected static void loadConfig() {
+    protected void loadConfig() {
         String keyVal;
         String[] keyValArr;
 
@@ -59,7 +59,7 @@ public class Config {
     }
 
 
-    public static void storeConfig(){
+    public void storeConfig(){
 
         File configParent = new File(CONFIG_FILE.getParent());
 
@@ -89,7 +89,7 @@ public class Config {
 
     }
 
-    public static void configurator() {
+    public void configurator() {
         Scanner scanner = new Scanner(System.in);
 
         System.out.print("Enter the location of the emulator executable >>> ");
