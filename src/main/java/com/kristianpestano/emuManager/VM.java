@@ -20,7 +20,6 @@ public class VM implements Serializable {
 
     transient private VMStatus vmStatus = VMStatus.HALTED;
     transient private Process process;
-    transient private Process configProcess;
 
     transient protected boolean isSelected = false;
     transient protected File dirContext;
@@ -43,26 +42,6 @@ public class VM implements Serializable {
     }
 
     public VMStatus getVmStatus() {
-        this.vmStatus = VMStatus.HALTED;
-
-        try {
-            if (this.process.isAlive()) {
-                vmStatus = VMStatus.RUNNING;
-            }
-
-        } catch (NullPointerException e ) {
-            vmStatus = VMStatus.HALTED;
-        }
-
-        try {
-            if (this.configProcess.isAlive()) {
-                vmStatus = VMStatus.ON_WAIT;
-            }
-
-        } catch (NullPointerException e ) {
-            vmStatus = VMStatus.HALTED;
-        }
-
         return this.vmStatus;
     }
 
@@ -134,7 +113,16 @@ public class VM implements Serializable {
         ProcessBuilder configuratorPb = new ProcessBuilder(configuratorPath.getAbsolutePath());
 
         configuratorPb.directory(dirContext);
-        configProcess = configuratorPb.start();
+        Process configProcess = configuratorPb.start();
+        while(configProcess.isAlive()) {
+            vmStatus = VMStatus.ON_WAIT;
+        }
+
+        if (process != null) {
+            vmStatus = VMStatus.RUNNING;
+        } else {
+            vmStatus = VMStatus.HALTED;
+        }
     }
 
     public double getPid() throws UnsupportedOperationException {
