@@ -69,6 +69,7 @@ public class EmuManager {
                         break;
                     case 8:
                         VMManager.printVMs();
+                        System.out.println("Input Enter to go back to the menu >>>");
                         break;
                     case 9:
                         vmManager.deleteVM();

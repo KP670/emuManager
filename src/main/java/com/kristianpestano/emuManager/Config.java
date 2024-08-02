@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
@@ -92,14 +93,26 @@ public class Config {
     public void configurator() {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.print("Enter the location of the emulator executable >>> ");
-        configMap.put("binPath", scanner.nextLine());
+        while (!scanner.nextLine().equalsIgnoreCase("Q")) {
+            try {
+                System.out.print("Enter the location of the emulator executable >>> ");
+                configMap.put("binPath", scanner.nextLine());
 
-        System.out.print("Enter the location of the emulator's configurator executable >>> ");
-        configMap.put("configuratorPath", scanner.nextLine());
 
-        System.out.print("Enter location of the Emulated Machines >> ");
-        configMap.put("machinesPath",scanner.nextLine());
+
+                System.out.print("Enter the location of the emulator's configurator executable >>> ");
+                configMap.put("configuratorPath", scanner.nextLine());
+
+
+
+                System.out.print("Enter location of the Emulated Machines >> ");
+                configMap.put("machinesPath",scanner.nextLine());
+            } catch (InputMismatchException | NumberFormatException e) {
+                System.out.println();
+            }
+
+            break;
+        }
 
         storeConfig();
         loadConfig();

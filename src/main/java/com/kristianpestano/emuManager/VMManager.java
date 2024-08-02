@@ -30,7 +30,7 @@ public class VMManager {
         char isSelected;
 
         int count = 1;
-        System.out.printf("%s | %-3s| %-7s| %-24s| %-24s| %s\n%s\n", "*", "#", "Status", "Name", "Directory", "Description", "=".repeat(96) );
+        System.out.printf(" %s | %-3s | %-7s | %-24s | %-24s | %s\n%s\n", "*", "#", "Status", "Name", "Directory", "Description", "=".repeat(96) );
 
         // Return if list is empty
         if (vmList.isEmpty()) {
@@ -55,7 +55,7 @@ public class VMManager {
             }
 
         // ID, Name, Path, Description
-            System.out.printf("%s | %-3d| %-7s| %-24s| %-24s| %s\n", isSelected, count, vmStatus, vm.getName(), vm.getDirectoryName(), vm.getDescription() );
+            System.out.printf(" %s | %-3d | %-7s | %-24s | %-24s | %s\n", isSelected, count, vmStatus, vm.getName(), vm.getDirectoryName(), vm.getDescription() );
             count++;
         }
         System.out.println("Nothing follows\n");
@@ -341,7 +341,7 @@ public class VMManager {
                        \s""", name, directoryName, description);
                 System.out.print("Confirm Changes? >> ");
 
-                userInput = scanner.nextLine().toUpperCase();
+                userInput = scanner.nextLine();
                 if (userInput.equals("YES") | userInput.equals("Y")) {
 
                     createBackup(selectedVM);
@@ -415,6 +415,7 @@ public class VMManager {
         }
     scanner.close();
     }
+
 
 
     public void configureVM() throws NullPointerException {
