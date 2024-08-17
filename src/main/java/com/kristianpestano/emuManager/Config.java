@@ -8,6 +8,8 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 
+import static com.kristianpestano.emuManager.EmuManager.confirm;
+
 public class Config {
     private static HashMap<String, String> configMap;
     private static Config instance;
@@ -92,28 +94,47 @@ public class Config {
 
     public void configurator() {
         Scanner scanner = new Scanner(System.in);
+        String userInput = "";
 
-        while (!scanner.nextLine().equalsIgnoreCase("Q")) {
+        while (true) {
             try {
                 System.out.print("Enter the location of the emulator executable >>> ");
-                configMap.put("binPath", scanner.nextLine());
+                userInput = scanner.nextLine();
 
-
+                if (!userInput.equalsIgnoreCase("Q")) {
+                    configMap.put("binPath", userInput);
+                }
 
                 System.out.print("Enter the location of the emulator's configurator executable >>> ");
-                configMap.put("configuratorPath", scanner.nextLine());
+                userInput = scanner.nextLine();
+
+                if (!userInput.equalsIgnoreCase("Q")) {
+                    configMap.put("configuratorPath", userInput);
+                }
+
+                System.out.print("Enter location of the Emulated Machines >>> ");
+                userInput = scanner.nextLine();
+
+                if (userInput.equalsIgnoreCase("Q")) {
+                    configMap.put("machinesPath", userInput);
+                }
 
 
+                for (String key: configMap.keySet()) {
+                    System.out.printf("%s: %s\n", key, configMap.get(key));
+                }
+                System.out.print("Confirm? >> ");
+                if (confirm()) {
+                  break;
+                }
 
-                System.out.print("Enter location of the Emulated Machines >> ");
-                configMap.put("machinesPath",scanner.nextLine());
             } catch (InputMismatchException | NumberFormatException e) {
-                System.out.println();
+                System.out.println("Invalid Input");
+                break;
             }
-
-            break;
         }
 
+        scanner.close();
         storeConfig();
         loadConfig();
     }

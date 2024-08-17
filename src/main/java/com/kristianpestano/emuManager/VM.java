@@ -4,11 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Scanner;
 
 import static com.kristianpestano.emuManager.EmuManager.*;
 
-public class VM implements Serializable {
+public class VM implements Serializable, Comparable<VM> {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -16,6 +15,7 @@ public class VM implements Serializable {
     private String name;
     private String directoryName;
     private String description;
+    private String serializedFileName;
 
 
     transient private VMStatus vmStatus = VMStatus.HALTED;
@@ -25,10 +25,6 @@ public class VM implements Serializable {
     transient protected boolean isSelected = false;
     transient protected File dirContext;
 
-
-    public boolean isSelected() {
-        return this.isSelected;
-    }
 
     public String getName() {
         return this.name;
@@ -66,6 +62,10 @@ public class VM implements Serializable {
         return this.vmStatus;
     }
 
+    public String getSerializedFileName() {
+        return serializedFileName;
+    }
+
     public File getDirContext() {
         return dirContext;
     }
@@ -94,6 +94,10 @@ public class VM implements Serializable {
         this.description = description;
     }
 
+    public void setSerializedFileName() {
+        this.serializedFileName = this.directoryName + SERIALIZED_MACHINES_EXTENSION;
+    }
+
     public void toggleSelected() {
         isSelected = !isSelected;
     }
@@ -105,36 +109,34 @@ public class VM implements Serializable {
 
     }
 
-    public void start() throws IOException {
-        ProcessBuilder binPb = new ProcessBuilder(binPath.getAbsolutePath());
-        binPb.directory(dirContext);
+    public void start() {
+        try {
+            ProcessBuilder binPb = new ProcessBuilder(binPath.getAbsolutePath());
+            binPb.directory(dirContext);
 
-        process = binPb.start();
-        vmStatus = VMStatus.RUNNING;
-    }
-
-    public void kill() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Confirm >> ");
-        String userInput = scanner.nextLine().toUpperCase();
-
-        while (true) {
-            if (userInput.equals("YES") | userInput.equals("Y")) {
-                this.process.destroy();
-                break;
-            } else if(userInput.equals("NO")| userInput.equals("N")) {
-                break;
-            } else {
-                System.out.println("Try Again\n");
-            }
+            process = binPb.start();
+            vmStatus = VMStatus.RUNNING;
+        } catch (IOException e )  {
+            System.out.println("Unable to start VM");
         }
     }
 
-    public void configure() throws IOException {
-        ProcessBuilder configuratorPb = new ProcessBuilder(configuratorPath.getAbsolutePath());
+    public void kill() {
+        System.out.println("Confirm >> ");
+        if (confirm()) {
+            this.process.destroy();
+        }
+    }
 
-        configuratorPb.directory(dirContext);
-        configProcess = configuratorPb.start();
+    public void configure() {
+        try {
+            ProcessBuilder configuratorPb = new ProcessBuilder(configuratorPath.getAbsolutePath());
+
+            configuratorPb.directory(dirContext);
+            configProcess = configuratorPb.start();
+        } catch (IOException e) {
+            System.out.println("Unable to start VM's configurator");
+        }
     }
 
     public double getPid() throws UnsupportedOperationException {
@@ -145,8 +147,8 @@ public class VM implements Serializable {
         this.name = name;
         this.directoryName = directoryName;
         this.description = description;
-        this.dirContext = new File( machinesPath + File.separator + this.directoryName);
-
+        this.dirContext = new File( machinesPath + File.separator + directoryName);
+        this.serializedFileName = directoryName + SERIALIZED_MACHINES_EXTENSION;
     }
 
     @Override
@@ -159,4 +161,13 @@ public class VM implements Serializable {
                     %s
                 """, name, directoryName, description);
     }
-}
+
+    @Override
+    public int compareTo(VM o) {
+        return o.getName().compareTo(this.name);
+    }
+
+    public int compareStatus(VM o) {
+        return o.getVmStatus().compareTo(this.vmStatus);
+    }
+ }
